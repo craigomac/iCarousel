@@ -132,6 +132,7 @@ typedef NS_ENUM(NSInteger, iCarouselOption)
 @property (nonatomic, assign) CGFloat autoscroll;
 @property (nonatomic, assign) BOOL stopAtItemBoundary;
 @property (nonatomic, assign) BOOL scrollToItemBoundary;
+@property (nonatomic, assign) BOOL scrollOneItemOnly;
 @property (nonatomic, assign) BOOL ignorePerpendicularSwipes;
 @property (nonatomic, assign) BOOL centerItemWhenSelected;
 @property (nonatomic, readonly, getter = isDragging) BOOL dragging;

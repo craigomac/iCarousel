@@ -121,6 +121,7 @@
 @property (nonatomic, assign, getter = isDragging) BOOL dragging;
 @property (nonatomic, assign) BOOL didDrag;
 @property (nonatomic, assign) NSTimeInterval toggleTime;
+@property (nonatomic, assign) CGFloat prePanScrollOffset;
 
 NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, iCarousel *self);
 
@@ -145,6 +146,7 @@ NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, iCarousel *sel
     _bounceDistance = 1.0;
     _stopAtItemBoundary = YES;
     _scrollToItemBoundary = YES;
+    _scrollOneItemOnly = NO;
     _ignorePerpendicularSwipes = YES;
     _centerItemWhenSelected = YES;
     
@@ -2088,6 +2090,7 @@ NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, iCarousel *sel
         {
             case UIGestureRecognizerStateBegan:
             {
+                _prePanScrollOffset = _scrollOffset;
                 _dragging = YES;
                 _scrolling = NO;
                 _decelerating = NO;
@@ -2147,6 +2150,7 @@ NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, iCarousel *sel
             case UIGestureRecognizerStateChanged:
             {
                 CGFloat translation = (_vertical? [panGesture translationInView:self].y: [panGesture translationInView:self].x) - _previousTranslation;
+                
                 CGFloat factor = 1.0;
                 if (!_wrapEnabled && _bounces)
                 {
@@ -2156,7 +2160,20 @@ NSComparisonResult compareViewDepth(UIView *view1, UIView *view2, iCarousel *sel
                 _previousTranslation = _vertical? [panGesture translationInView:self].y: [panGesture translationInView:self].x;
                 _startVelocity = -(_vertical? [panGesture velocityInView:self].y: [panGesture velocityInView:self].x) * factor * _scrollSpeed / _itemWidth;
                 _scrollOffset -= translation * factor * _offsetMultiplier / _itemWidth;
+                
+                if (_scrollOneItemOnly) {
+                    _startVelocity = 0.f;
+                    if (_scrollOffset < _prePanScrollOffset - 1.f) {
+                        _scrollOffset = _prePanScrollOffset - 1.f;
+                    } else
+                        if (_scrollOffset > _prePanScrollOffset + 1.f) {
+                            _scrollOffset = _prePanScrollOffset + 1.f;
+                        }
+                }
+
+                
                 [self didScroll];
+                
                 break;
             }
             case UIGestureRecognizerStatePossible:
